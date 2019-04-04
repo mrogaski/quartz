@@ -1,2 +1,2 @@
 # quartz
-A lightweight, cross-platform roller terby scoreboard and timer. 
+A lightweight, cross-platform roller derby scoreboard and timer. 
