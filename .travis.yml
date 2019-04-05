@@ -15,10 +15,10 @@ matrix:
       go: 1.11.x
 
 before_install:
-  - go get -u golang.org/x/vgo
+  - go get -t -v ./...
 
 script:
-  - vgo test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+  - go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
