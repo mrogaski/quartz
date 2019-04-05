@@ -10,9 +10,9 @@ go:
   - 1.12.x
 
 matrix:
-  include:
+  exclude:
     - os: windows
-      env: LDFLAGS=-linkmode=external
+      go: 1.11.x
 
 before_install:
   - go get -u golang.org/x/vgo
