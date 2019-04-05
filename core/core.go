@@ -8,4 +8,3 @@ type Timestamp struct {
 	TimeoutStart     time.Time
 	TimeoutRemaining time.Duration
 }
-
