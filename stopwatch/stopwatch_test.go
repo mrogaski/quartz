@@ -12,7 +12,7 @@ func TestStopWatch(t *testing.T) {
 	n := 8
 	for curr := range sw.C {
 		assert.Less(t, int64(prev), int64(curr))
-		n -= 1
+		n--
 		if n < 0 {
 			return
 		}
