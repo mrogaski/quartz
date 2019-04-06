@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	PeriodDuration      = time.Minute * 30
-	LineupDuration      = time.Second * 30
-	JamDuration         = time.Minute * 2
-	TeamTimeoutDuration = time.Minute * 1
+	PeriodDuration      = time.Minute * 30	// Default duration for a bout period.
+	LineupDuration      = time.Second * 30	// Default time between jams.
+	JamDuration         = time.Minute * 2	// Default maximum jam time.
+	TeamTimeoutDuration = time.Minute * 1	// Default duration of a team timeout.
 )
 
 // PeriodClock contains the elapsed time for the current period, lineup, jam, and timeout.
