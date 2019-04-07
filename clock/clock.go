@@ -1,30 +1,31 @@
-package timer
+package clock
 
 import (
 	"errors"
-	"time"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 const (
+	TickDuration        = time.Second      // Default ticker interval.
 	PeriodDuration      = time.Minute * 30 // Default duration for a bout period.
 	LineupDuration      = time.Second * 30 // Default time between jams.
 	JamDuration         = time.Minute * 2  // Default maximum jam time.
-	TeamTimeoutDuration = time.Minute * 1  // Default duration of a team timeout.
+	TeamTimeoutDuration = time.Minute      // Default duration of a team timeout.
 )
-
-type PeriodClockState string
 
 // PeriodClockState reflects the running state of the period clock.
 const (
-	JamPending    PeriodClockState = "pending" // JamPending indicates the lineup period before the start of a jam.
-	JamActive     PeriodClockState = "active"  // JamActive indicates and active jam.
-	PeriodTimeout PeriodClockState = "timeout" // PeriodTimeout indicates a timeout is in effect.
+	PeriodStart   = "start"   // PeriodStart is the initial state prior to the period.
+	JamPending    = "pending" // JamPending indicates the lineup period before the start of a jam.
+	JamActive     = "active"  // JamActive indicates and active jam.
+	PeriodTimeout = "timeout" // PeriodTimeout indicates a timeout is in effect.
+	PeriodEnd     = "end"     // PeriodEnd is the end of normal play.
 )
 
 // PeriodClock contains the elapsed time for the current period, lineup, jam, and timeout.
 type PeriodClock struct {
-	State          PeriodClockState
+	State          string
 	PeriodElapsed  time.Duration
 	LineupElapsed  time.Duration
 	JamElapsed     time.Duration
