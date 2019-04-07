@@ -3,6 +3,7 @@ package timer
 import (
 	"errors"
 	"time"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -33,6 +34,7 @@ type PeriodClock struct {
 // PeriodRemaining returns the amount of time remaining in the current period.
 func (c PeriodClock) PeriodRemaining() (time.Duration, error) {
 	if c.PeriodElapsed == 0 {
+		log.Debug("Period has not yet started")
 		err := errors.New("Period has not yet started")
 		return 0, err
 	}
@@ -42,6 +44,7 @@ func (c PeriodClock) PeriodRemaining() (time.Duration, error) {
 // JamRemaining returns the amount of time remaining in the current jam.
 func (c PeriodClock) JamRemaining() (time.Duration, error) {
 	if c.JamElapsed == 0 {
+		log.Debug("Jam has not yet started")
 		err := errors.New("Jam has not yet started")
 		return 0, err
 	}
