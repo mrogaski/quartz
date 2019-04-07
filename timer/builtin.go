@@ -13,6 +13,7 @@ func NewBuiltinTimer(d time.Duration) *BuiltinTimer {
 	running := false
 	go func() {
 		var offset time.Time
+		var curr time.Duration
 		source := time.NewTicker(d)
 		defer source.Stop()
 		for {
@@ -27,8 +28,9 @@ func NewBuiltinTimer(d time.Duration) *BuiltinTimer {
 				}
 			case t := <-source.C:
 				if running {
-					ticker <- t.Sub(offset)
+					curr = t.Sub(offset)
 				}
+				ticker <- curr
 			}
 		}
 	}()
