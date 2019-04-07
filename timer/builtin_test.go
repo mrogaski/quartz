@@ -1,4 +1,4 @@
-package stopwatch
+package timer
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -6,11 +6,13 @@ import (
 	"time"
 )
 
-func TestStopWatch(t *testing.T) {
-	sw := NewStopWatch(time.Second)
+func TestBuiltinTimer(t *testing.T) {
+	timer := NewBuiltinTimer(time.Second)
 	prev := time.Millisecond
 	n := 8
-	for curr := range sw.C {
+	ticker := timer.GetTickChannel()
+	timer.Start()
+	for curr := range ticker {
 		assert.Less(t, int64(prev), int64(curr))
 		n--
 		if n < 0 {
