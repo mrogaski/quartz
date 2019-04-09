@@ -23,6 +23,11 @@ func NewBuiltinTimer(d time.Duration) *BuiltinTimer {
 				case "start":
 					offset = time.Now()
 					running = true
+				case "stop":
+					running = false
+				case "reset":
+					offset = time.Now()
+					curr = 0
 				case "close":
 					return
 				}
