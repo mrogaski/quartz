@@ -9,7 +9,9 @@ import (
 const MinimumTickCount = 4
 
 func TestBuiltinTimer(t *testing.T) {
-	timer := NewBuiltinTimer(time.Second)
+	source := time.NewTicker(time.Second)
+	defer source.Stop()
+	timer := NewBuiltinTimer(source.C)
 	n := MinimumTickCount
 	ticker := timer.GetTickChannel()
 	for curr := range ticker {
@@ -23,7 +25,9 @@ func TestBuiltinTimer(t *testing.T) {
 }
 
 func TestBuiltinTimerStart(t *testing.T) {
-	timer := NewBuiltinTimer(time.Second)
+	source := time.NewTicker(time.Second)
+	defer source.Stop()
+	timer := NewBuiltinTimer(source.C)
 	prev := time.Millisecond
 	n := MinimumTickCount
 	ticker := timer.GetTickChannel()
@@ -39,6 +43,8 @@ func TestBuiltinTimerStart(t *testing.T) {
 }
 
 func TestBuiltinTimerClose(t *testing.T) {
-	timer := NewBuiltinTimer(time.Second)
+	source := time.NewTicker(time.Second)
+	defer source.Stop()
+	timer := NewBuiltinTimer(source.C)
 	timer.Close()
 }

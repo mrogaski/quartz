@@ -7,15 +7,13 @@ type BuiltinTimer struct {
 	command chan<- string        // The command channel to control the timer.
 }
 
-func NewBuiltinTimer(d time.Duration) *BuiltinTimer {
+func NewBuiltinTimer(c <-chan time.Time) *BuiltinTimer {
 	ticker := make(chan time.Duration)
 	command := make(chan string)
 	running := false
-	go func() {
+	go func(source <-chan time.Time) {
 		var offset time.Time
 		var curr time.Duration
-		source := time.NewTicker(d)
-		defer source.Stop()
 		for {
 			select {
 			case cmd := <-command:
@@ -31,14 +29,14 @@ func NewBuiltinTimer(d time.Duration) *BuiltinTimer {
 				case "close":
 					return
 				}
-			case t := <-source.C:
+			case t := <-source:
 				if running {
 					curr = t.Sub(offset)
 				}
 				ticker <- curr
 			}
 		}
-	}()
+	}(c)
 	return &BuiltinTimer{ticker: ticker, command: command}
 }
 
