@@ -9,10 +9,6 @@ go:
   - 1.11.x
   - 1.12.x
 
-matrix:
-  allow_failures:
-    - os: windows
-
 before_install:
   - go get -t -v ./...
 
