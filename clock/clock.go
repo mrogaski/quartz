@@ -6,24 +6,43 @@ import (
 )
 
 const (
-	TickDuration        = time.Second      // Default ticker interval.
-	PeriodDuration      = time.Minute * 30 // Default duration for a bout period.
-	LineupDuration      = time.Second * 30 // Default time between jams.
-	JamDuration         = time.Minute * 2  // Default maximum jam time.
-	TeamTimeoutDuration = time.Minute      // Default duration of a team timeout.
+	// TickDuration is the default ticker interval.
+	TickDuration = time.Second
+
+	// PeriodDuration is the efault duration for a bout period.
+	PeriodDuration = time.Minute * 30
+
+	// LineupDuration is the default time between jams.
+	LineupDuration = time.Second * 30
+
+	// JamDuration is the efault maximum jam time.
+	JamDuration = time.Minute * 2
+
+	// TeamTimeoutDuration is the default duration of a team timeout.
+	TeamTimeoutDuration = time.Minute
 )
 
 // PeriodClockState reflects the running state of the period clock.
 const (
-	PeriodStart   = "start"   // PeriodStart is the initial state prior to the period.
-	JamPending    = "pending" // JamPending indicates the lineup period before the start of a jam.
-	JamActive     = "active"  // JamActive indicates and active jam.
-	PeriodTimeout = "timeout" // PeriodTimeout indicates a timeout is in effect.
-	PeriodEnd     = "end"     // PeriodEnd is the end of normal play.
+	// PeriodStart is the initial state prior to the period.
+	PeriodStart = "start"
+
+	// JamPending indicates the lineup period before the start of a jam.
+	JamPending = "pending"
+
+	// JamActive indicates and active jam.
+	JamActive = "active"
+
+	// PeriodTimeout indicates a timeout is in effect.
+	PeriodTimeout = "timeout"
+
+	// PeriodEnd is the end of normal play.
+	PeriodEnd = "end"
 )
 
 // PeriodClock contains the elapsed time for the current period, lineup, jam, and timeout.
 type PeriodClock struct {
+	// State is the current state of the bout period.
 	State          string
 	PeriodElapsed  time.Duration
 	LineupElapsed  time.Duration
