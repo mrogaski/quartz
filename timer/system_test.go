@@ -4,17 +4,25 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"sync"
 	"testing"
 	"time"
 )
 
 type mockTimeProvider struct {
 	mock.Mock
+	mu  sync.Mutex
 	now time.Time
 }
 
 func (m *mockTimeProvider) Now() time.Time {
 	return m.now
+}
+
+func (m *mockTimeProvider) SetNow(t time.Time) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.now = t
 }
 
 type SystemTimerTestSuite struct {
@@ -53,15 +61,15 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRun() {
 	t1 := t0.Add(time.Second * 1)
 	t2 := t0.Add(time.Second * 2)
 
-	ts.time.now = t0
+	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
 	c := st.TickChannel()
 
-	ts.time.now = t1
+	ts.time.SetNow(t1)
 	err := st.Start()
 	assert.NoError(ts.T(), err)
 
-	ts.time.now = t2
+	ts.time.SetNow(t2)
 	ts.ticker <- t2
 	assert.Equal(ts.T(), time.Second*1, <-c)
 }
@@ -71,17 +79,17 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunRevert() {
 	t1 := t0.Add(time.Second * 1)
 	t2 := t0.Add(time.Second * 2)
 
-	ts.time.now = t0
+	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
 	c := st.TickChannel()
 
-	ts.time.now = t1
+	ts.time.SetNow(t1)
 	err := st.Start()
 	assert.NoError(ts.T(), err)
 	err = st.Revert()
 	assert.NoError(ts.T(), err)
 
-	ts.time.now = t2
+	ts.time.SetNow(t2)
 	ts.ticker <- t2
 	assert.Equal(ts.T(), time.Second*0, <-c)
 
