@@ -16,6 +16,8 @@ type mockTimeProvider struct {
 }
 
 func (m *mockTimeProvider) Now() time.Time {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	return m.now
 }
 
