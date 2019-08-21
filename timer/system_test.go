@@ -1,7 +1,6 @@
 package timer
 
 import (
-	"github.com/sirupsen/logrus"
 	"sync"
 	"testing"
 	"time"
@@ -400,7 +399,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerReset() {
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerClose() {
-	logrus.SetLevel(logrus.DebugLevel)
 	t0 := time.Now()
 	t1 := t0.Add(time.Second * 1)
 	t2 := t0.Add(time.Second * 2)
