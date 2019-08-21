@@ -2,8 +2,8 @@ package clock
 
 import "time"
 
-// The Timer interface defines a Ticker-style stopwatch goroutine that can be started or stopped via methods.
-type Timer interface {
+// The RevertibleTimer interface defines a Ticker-style stopwatch goroutine that can be started or stopped via methods.
+type RevertibleTimer interface {
 	// GetTickChannel returns a channel that delivers the time.Duration ticks.
 	TickChannel() <-chan time.Duration
 

@@ -7,8 +7,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Command is a type for command constants.
 type Command uint8
 
+// Command constants used to control the running state of the timer.
 const (
 	CmdStart Command = iota
 	CmdStop
@@ -17,8 +19,10 @@ const (
 	CmdClose
 )
 
+// State is a type for state constants.
 type State uint8
 
+// State constants used to represent the states of the timer's state machine.
 const (
 	StateStart State = iota
 	StateRunningRevertible
@@ -27,12 +31,20 @@ const (
 	StateStopped
 )
 
+// SystemTimer implements the clock.RevertibleTimer interface.
 type SystemTimer struct {
-	ticker   <-chan time.Duration // The channel on which the ticks are delivered.
-	command  chan<- Command       // The command channel to control the timer.
-	response <-chan error         // A response channel, reports an error if the command failed or nil otherwise.
+	// C is the channel on which the timer elapsed time ticks are delivered.
+	C <-chan time.Duration
+
+	// command is the command channel to control the timer.
+	command chan<- Command
+
+	// response is a response channel, reports an error if the command failed or nil otherwise.
+	response <-chan error
 }
 
+// NewSystemTimer returns a pointer to an initialized SystemTimer, given a core time.Ticker struct and an
+// implementation of the clock.RevertibleTimer interface.
 func NewSystemTimer(c <-chan time.Time, p TimeProvider) *SystemTimer {
 	tc := make(chan time.Duration, 1)
 	cc := make(chan Command, 1)
@@ -133,33 +145,35 @@ func NewSystemTimer(c <-chan time.Time, p TimeProvider) *SystemTimer {
 			}
 		}
 	}(c, p)
-	return &SystemTimer{ticker: tc, command: cc, response: rc}
+	return &SystemTimer{C: tc, command: cc, response: rc}
 }
 
-func (timer *SystemTimer) TickChannel() <-chan time.Duration {
-	return timer.ticker
-}
-
+// Start causes the timer to begin running and recording elapsed time.
 func (timer *SystemTimer) Start() error {
 	timer.command <- CmdStart
 	return <-timer.response
 }
 
+// Stop halts the timer and freezes the elapsed time.
 func (timer *SystemTimer) Stop() error {
 	timer.command <- CmdStop
 	return <-timer.response
 }
 
+// Revert moves back to the previous running or stopped state.  Revert may only be called once after advancing to a
+// new state.
 func (timer *SystemTimer) Revert() error {
 	timer.command <- CmdRevert
 	return <-timer.response
 }
 
+// Reset moves the timer back to the start state and clears the elapsed time.
 func (timer *SystemTimer) Reset() error {
 	timer.command <- CmdReset
 	return <-timer.response
 }
 
+// Close terminates the timer goroutine.
 func (timer *SystemTimer) Close() error {
 	timer.command <- CmdClose
 	return <-timer.response

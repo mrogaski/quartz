@@ -51,13 +51,12 @@ func (ts *SystemTimerTestSuite) TestNewSystemTimer() {
 
 func (ts *SystemTimerTestSuite) TestSystemTimerStart() {
 	t := time.Now()
-	ts.time.now = t
 
+	ts.time.SetNow(t)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.ticker <- t
-	assert.Equal(ts.T(), time.Second*0, <-c)
+	assert.Equal(ts.T(), time.Second*0, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerRunningRevertible() {
@@ -67,7 +66,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunningRevertible() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -75,7 +73,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunningRevertible() {
 
 	ts.time.SetNow(t2)
 	ts.ticker <- t2
-	assert.Equal(ts.T(), time.Second*1, <-c)
+	assert.Equal(ts.T(), time.Second*1, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerRunRevertibleToStopped() {
@@ -85,7 +83,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunRevertibleToStopped() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -95,7 +92,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunRevertibleToStopped() {
 
 	ts.time.SetNow(t2)
 	ts.ticker <- t2
-	assert.Equal(ts.T(), time.Second*0, <-c)
+	assert.Equal(ts.T(), time.Second*0, <-st.C)
 
 }
 
@@ -107,7 +104,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRevertStopped() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -121,7 +117,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRevertStopped() {
 	err = st.Revert()
 	assert.EqualError(ts.T(), err, "revert not available")
 	ts.ticker <- t3
-	assert.Equal(ts.T(), time.Second*0, <-c)
+	assert.Equal(ts.T(), time.Second*0, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerStoppedToRunningRevert() {
@@ -131,7 +127,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedToRunningRevert() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -143,7 +138,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedToRunningRevert() {
 
 	ts.time.SetNow(t2)
 	ts.ticker <- t2
-	assert.Equal(ts.T(), time.Second*1, <-c)
+	assert.Equal(ts.T(), time.Second*1, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerRunRevertibleToStoppedRevertible() {
@@ -154,7 +149,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunRevertibleToStoppedRevertible(
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -166,7 +160,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunRevertibleToStoppedRevertible(
 
 	ts.time.SetNow(t3)
 	ts.ticker <- t3
-	assert.Equal(ts.T(), time.Second*1, <-c)
+	assert.Equal(ts.T(), time.Second*1, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerStoppedRevertibleToRunningRevertible() {
@@ -178,7 +172,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedRevertibleToRunningReverti
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -194,7 +187,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedRevertibleToRunningReverti
 
 	ts.time.SetNow(t4)
 	ts.ticker <- t4
-	assert.Equal(ts.T(), time.Second*2, <-c)
+	assert.Equal(ts.T(), time.Second*2, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerStoppedRevertibleToRunning() {
@@ -206,7 +199,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedRevertibleToRunning() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -222,7 +214,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedRevertibleToRunning() {
 
 	ts.time.SetNow(t4)
 	ts.ticker <- t4
-	assert.Equal(ts.T(), time.Second*3, <-c)
+	assert.Equal(ts.T(), time.Second*3, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerRevertRunning() {
@@ -234,7 +226,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRevertRunning() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -252,7 +243,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRevertRunning() {
 	err = st.Revert()
 	assert.EqualError(ts.T(), err, "revert not available")
 	ts.ticker <- t4
-	assert.Equal(ts.T(), time.Second*3, <-c)
+	assert.Equal(ts.T(), time.Second*3, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerRunningToStoppedRevertible() {
@@ -265,7 +256,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunningToStoppedRevertible() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -285,7 +275,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunningToStoppedRevertible() {
 
 	ts.time.SetNow(t5)
 	ts.ticker <- t5
-	assert.Equal(ts.T(), time.Second*3, <-c)
+	assert.Equal(ts.T(), time.Second*3, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerStartRunningRevertible() {
@@ -295,7 +285,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStartRunningRevertible() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -303,12 +292,12 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStartRunningRevertible() {
 
 	ts.time.SetNow(t2)
 	ts.ticker <- t2
-	assert.Equal(ts.T(), time.Second*1, <-c)
+	assert.Equal(ts.T(), time.Second*1, <-st.C)
 
 	err = st.Start()
 	assert.EqualError(ts.T(), err, "cannot start a running timer")
 	ts.ticker <- t2
-	assert.Equal(ts.T(), time.Second*1, <-c)
+	assert.Equal(ts.T(), time.Second*1, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerStartRunning() {
@@ -320,7 +309,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStartRunning() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -338,7 +326,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStartRunning() {
 	err = st.Start()
 	assert.EqualError(ts.T(), err, "cannot start a running timer")
 	ts.ticker <- t4
-	assert.Equal(ts.T(), time.Second*3, <-c)
+	assert.Equal(ts.T(), time.Second*3, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerStopStoppedRevertible() {
@@ -349,7 +337,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStopStoppedRevertible() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -363,7 +350,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStopStoppedRevertible() {
 	err = st.Stop()
 	assert.EqualError(ts.T(), err, "cannot stop a stopped timer")
 	ts.ticker <- t3
-	assert.Equal(ts.T(), time.Second*1, <-c)
+	assert.Equal(ts.T(), time.Second*1, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerStopStopped() {
@@ -374,7 +361,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStopStopped() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -388,7 +374,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStopStopped() {
 	err = st.Stop()
 	assert.EqualError(ts.T(), err, "cannot stop a stopped timer")
 	ts.ticker <- t3
-	assert.Equal(ts.T(), time.Second*0, <-c)
+	assert.Equal(ts.T(), time.Second*0, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerReset() {
@@ -399,7 +385,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerReset() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -411,7 +396,7 @@ func (ts *SystemTimerTestSuite) TestSystemTimerReset() {
 
 	ts.time.SetNow(t3)
 	ts.ticker <- t3
-	assert.Equal(ts.T(), time.Second*0, <-c)
+	assert.Equal(ts.T(), time.Second*0, <-st.C)
 }
 
 func (ts *SystemTimerTestSuite) TestSystemTimerClose() {
@@ -422,7 +407,6 @@ func (ts *SystemTimerTestSuite) TestSystemTimerClose() {
 
 	ts.time.SetNow(t0)
 	st := NewSystemTimer(ts.ticker, ts.time)
-	c := st.TickChannel()
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -431,5 +415,5 @@ func (ts *SystemTimerTestSuite) TestSystemTimerClose() {
 	ts.time.SetNow(t2)
 	err = st.Close()
 	assert.NoError(ts.T(), err)
-	assert.Equal(ts.T(), time.Second*0, <-c)
+	assert.Equal(ts.T(), time.Second*0, <-st.C)
 }
