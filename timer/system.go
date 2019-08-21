@@ -3,6 +3,8 @@ package timer
 import (
 	"errors"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Command uint8
@@ -36,6 +38,8 @@ func NewSystemTimer(c <-chan time.Time, p TimeProvider) *SystemTimer {
 	cc := make(chan Command, 1)
 	rc := make(chan error, 1)
 	go func(source <-chan time.Time, p TimeProvider) {
+		defer close(tc)
+		defer close(rc)
 		state := StateStart
 		base := []time.Time{p.Now()}
 		elapsed := []time.Duration{time.Second * 0}
@@ -50,6 +54,10 @@ func NewSystemTimer(c <-chan time.Time, p TimeProvider) *SystemTimer {
 					case StateStart, StateStopped, StateStoppedRevertible:
 						base = append([]time.Time{p.Now()}, base...)
 						state = StateRunningRevertible
+						log.WithFields(log.Fields{
+							"base":    base,
+							"elapsed": elapsed,
+						}).Debug("moving to RUNNING_REVERTIBLE")
 						rc <- nil
 					default:
 						rc <- errors.New("cannot start a running timer")
@@ -60,6 +68,10 @@ func NewSystemTimer(c <-chan time.Time, p TimeProvider) *SystemTimer {
 					case StateRunning, StateRunningRevertible:
 						elapsed = append([]time.Duration{p.Now().Sub(base[0])}, elapsed...)
 						state = StateStoppedRevertible
+						log.WithFields(log.Fields{
+							"base":    base,
+							"elapsed": elapsed,
+						}).Debug("moving to STOPPED_REVERTIBLE")
 						rc <- nil
 					default:
 						rc <- errors.New("cannot stop a stopped timer")
@@ -68,12 +80,20 @@ func NewSystemTimer(c <-chan time.Time, p TimeProvider) *SystemTimer {
 				case CmdRevert:
 					switch state {
 					case StateRunningRevertible:
-						elapsed = elapsed[:1]
+						base = base[1:]
 						state = StateStopped
+						log.WithFields(log.Fields{
+							"base":    base,
+							"elapsed": elapsed,
+						}).Debug("moving to STOPPED")
 						rc <- nil
 					case StateStoppedRevertible:
-						base = base[:1]
+						elapsed = elapsed[1:]
 						state = StateRunning
+						log.WithFields(log.Fields{
+							"base":    base,
+							"elapsed": elapsed,
+						}).Debug("moving to RUNNING")
 						rc <- nil
 					default:
 						rc <- errors.New("revert not available")
@@ -82,15 +102,31 @@ func NewSystemTimer(c <-chan time.Time, p TimeProvider) *SystemTimer {
 				case CmdReset:
 					base = []time.Time{p.Now()}
 					elapsed = []time.Duration{time.Second * 0}
+					state = StateStart
+					log.WithFields(log.Fields{
+						"base":    base,
+						"elapsed": elapsed,
+					}).Debug("reset to START")
+					rc <- nil
 
 				case CmdClose:
+					log.WithFields(log.Fields{
+						"base":    base,
+						"elapsed": elapsed,
+					}).Debug("shutting down timer")
+					rc <- nil
 					return
 				}
 
 			case t := <-source:
+				log.WithFields(log.Fields{
+					"base":    base,
+					"elapsed": elapsed,
+					"tick":    t,
+				}).Debug("tick received")
 				switch state {
 				case StateRunningRevertible, StateRunning:
-					tc <- t.Sub(base[0])
+					tc <- t.Sub(base[0]) + elapsed[0]
 				default:
 					tc <- elapsed[0]
 				}
