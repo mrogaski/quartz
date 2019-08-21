@@ -44,7 +44,8 @@ func TestSystemTimerTestSuite(t *testing.T) {
 }
 
 func (ts *SystemTimerTestSuite) TestNewSystemTimer() {
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 	assert.NotNil(ts.T(), st)
 }
 
@@ -52,7 +53,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStart() {
 	t := time.Now()
 
 	ts.time.SetNow(t)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.ticker <- t
 	assert.Equal(ts.T(), time.Second*0, <-st.C)
@@ -64,7 +66,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunningRevertible() {
 	t2 := t0.Add(time.Second * 2)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -81,7 +84,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunRevertibleToStopped() {
 	t2 := t0.Add(time.Second * 2)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -102,7 +106,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRevertStopped() {
 	t3 := t0.Add(time.Second * 3)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -125,7 +130,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedToRunningRevert() {
 	t2 := t0.Add(time.Second * 2)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -147,7 +153,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunRevertibleToStoppedRevertible(
 	t3 := t0.Add(time.Second * 3)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -170,7 +177,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedRevertibleToRunningReverti
 	t4 := t0.Add(time.Second * 4)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -197,7 +205,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStoppedRevertibleToRunning() {
 	t4 := t0.Add(time.Second * 4)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -224,7 +233,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRevertRunning() {
 	t4 := t0.Add(time.Second * 4)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -254,7 +264,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerRunningToStoppedRevertible() {
 	t5 := t0.Add(time.Second * 5)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -283,7 +294,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStartRunningRevertible() {
 	t2 := t0.Add(time.Second * 2)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -307,7 +319,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStartRunning() {
 	t4 := t0.Add(time.Second * 4)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -335,7 +348,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStopStoppedRevertible() {
 	t3 := t0.Add(time.Second * 3)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -359,7 +373,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerStopStopped() {
 	t3 := t0.Add(time.Second * 3)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -383,7 +398,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerReset() {
 	t3 := t0.Add(time.Second * 3)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()
@@ -404,7 +420,8 @@ func (ts *SystemTimerTestSuite) TestSystemTimerClose() {
 	t2 := t0.Add(time.Second * 2)
 
 	ts.time.SetNow(t0)
-	st := NewSystemTimer(ts.ticker, ts.time)
+	source := &time.Ticker{C: ts.ticker}
+	st := NewSystemTimer(source, ts.time)
 
 	ts.time.SetNow(t1)
 	err := st.Start()

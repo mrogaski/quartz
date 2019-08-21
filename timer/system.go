@@ -36,7 +36,7 @@ type SystemTimer struct {
 	// C is the channel on which the timer elapsed time ticks are delivered.
 	C <-chan time.Duration
 
-	source   <-chan time.Time
+	source   *time.Ticker
 	time     TimeProvider
 	ticker   chan time.Duration
 	command  chan Command
@@ -45,9 +45,9 @@ type SystemTimer struct {
 
 // NewSystemTimer returns a pointer to an initialized SystemTimer, given a core time.Ticker struct and an
 // implementation of the clock.RevertibleTimer interface.
-func NewSystemTimer(c <-chan time.Time, p TimeProvider) *SystemTimer {
+func NewSystemTimer(source *time.Ticker, p TimeProvider) *SystemTimer {
 	t := &SystemTimer{
-		source:   c,
+		source:   source,
 		time:     p,
 		ticker:   make(chan time.Duration, 1),
 		command:  make(chan Command, 1),
@@ -139,7 +139,7 @@ func (t *SystemTimer) run() {
 				return
 			}
 
-		case tc := <-t.source:
+		case tc := <-t.source.C:
 			log.WithFields(log.Fields{
 				"base":    base,
 				"elapsed": elapsed,
@@ -156,32 +156,32 @@ func (t *SystemTimer) run() {
 }
 
 // Start causes the timer to begin running and recording elapsed time.
-func (timer *SystemTimer) Start() error {
-	timer.command <- CmdStart
-	return <-timer.response
+func (t *SystemTimer) Start() error {
+	t.command <- CmdStart
+	return <-t.response
 }
 
 // Stop halts the timer and freezes the elapsed time.
-func (timer *SystemTimer) Stop() error {
-	timer.command <- CmdStop
-	return <-timer.response
+func (t *SystemTimer) Stop() error {
+	t.command <- CmdStop
+	return <-t.response
 }
 
 // Revert moves back to the previous running or stopped state.  Revert may only be called once after advancing to a
 // new state.
-func (timer *SystemTimer) Revert() error {
-	timer.command <- CmdRevert
-	return <-timer.response
+func (t *SystemTimer) Revert() error {
+	t.command <- CmdRevert
+	return <-t.response
 }
 
 // Reset moves the timer back to the start state and clears the elapsed time.
-func (timer *SystemTimer) Reset() error {
-	timer.command <- CmdReset
-	return <-timer.response
+func (t *SystemTimer) Reset() error {
+	t.command <- CmdReset
+	return <-t.response
 }
 
 // Close terminates the timer goroutine.
-func (timer *SystemTimer) Close() error {
-	timer.command <- CmdClose
-	return <-timer.response
+func (t *SystemTimer) Close() error {
+	t.command <- CmdClose
+	return <-t.response
 }
